@@ -86,7 +86,7 @@ public class Game {
     private void loop() {
         while (!glfwWindowShouldClose(window)) {
             // Clear the color and depth buffers
-            // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Reset the model-view matrix
             glLoadIdentity();
