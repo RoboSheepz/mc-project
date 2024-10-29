@@ -21,7 +21,7 @@ public class Game {
      * Handles initialization, game loop, and closing game
      */
     public void run() {
-        System.out.println("Starting LWJGL 3D Cube...");
+        System.out.println("Starting the game...");
         init();
         loop();
         glfwDestroyWindow(window);
