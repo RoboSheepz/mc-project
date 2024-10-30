@@ -16,6 +16,8 @@ public class Game {
     private float cameraYaw = 0.0f;  // Rotation around Y-axis
     private float cameraPitch = 0.0f; // Rotation around X-axis
     private float cameraSpeed = 0.2f; // Movement speed multiplier
+    private World world = new World(); // The world contains all voxel information
+    private int seed = 100;
 
     /**
      * Handles initialization, game loop, and closing game
@@ -42,7 +44,7 @@ public class Game {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(800, 600, "3D Cube", NULL, NULL);
+        window = glfwCreateWindow(800, 600, "Anyacraft", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -74,10 +76,6 @@ public class Game {
 
         // Switch back to model view matrix
         glMatrixMode(GL_MODELVIEW);
-
-                    // Draw grid
-                    TerrainGenerator g = new TerrainGenerator();
-                    g.generateChunk(420);
     }
 
     /**
@@ -100,6 +98,9 @@ public class Game {
             glRotatef(cameraYaw, 0.0f, 1.0f, 0.0f);   // Yaw (Y-axis)
 
             glTranslatef(cameraX, cameraY, cameraZ);  // Move the world based on camera position
+
+            // Update all blocks
+            world.renderWorld( cameraX, cameraZ, seed );
             
             // Swap the buffers to display the frame
             glfwSwapBuffers(window);
