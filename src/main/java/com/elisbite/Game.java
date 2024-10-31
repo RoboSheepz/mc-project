@@ -81,6 +81,7 @@ public class Game {
         glMatrixMode(GL_MODELVIEW);
 
         player.init();
+        ui.init();
     }
 
     /**
