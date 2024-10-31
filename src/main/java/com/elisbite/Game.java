@@ -2,6 +2,7 @@ package com.elisbite;
 
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
+import org.joml.Vector2i;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -12,7 +13,9 @@ public class Game {
     private long window;
     private World world = new World(); // The world contains all voxel information
     private Player player = new Player(); // The player
+    private UI ui = new UI(); // The UI
     private int seed = 100;
+    private Vector2i windowSize = new Vector2i(800, 600);
 
     /**
      * Handles initialization, game loop, and closing game
@@ -39,14 +42,14 @@ public class Game {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(800, 600, "Anyacraft", NULL, NULL);
+        window = glfwCreateWindow(windowSize.x, windowSize.y, "Anyacraft", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
         // Center the window
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        glfwSetWindowPos(window, (vidMode.width() - 800) / 2, (vidMode.height() - 600) / 2);
+        glfwSetWindowPos(window, (vidMode.width() - windowSize.x) / 2, (vidMode.height() - windowSize.y) / 2);
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
@@ -62,7 +65,7 @@ public class Game {
         // Set up the projection matrix for perspective
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        float aspect = 800f / 600f;
+        float aspect = windowSize.x / windowSize.y;
         glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0);
 
         // Enable face culling
@@ -72,10 +75,12 @@ public class Game {
 
         // Hide cursor and capture it
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-        glfwSetCursorPos(window, 400, 300); // Center the cursor
+        glfwSetCursorPos(window, windowSize.x/2, windowSize.y/2); // Center the cursor
 
         // Switch back to model view matrix
         glMatrixMode(GL_MODELVIEW);
+
+        player.init();
     }
 
     /**
@@ -95,8 +100,18 @@ public class Game {
             
             player.tick();
 
-            // Update all blocks
+            // Render 3D World
+            glEnable(GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_CULL_FACE);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            float aspect = windowSize.x / windowSize.y;
+            glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0);
             world.renderWorld( player.getPlayerPos().x, player.getPlayerPos().z, seed );
+            glMatrixMode(GL_MODELVIEW);
+
+            // Render UI
+            ui.renderUI(windowSize);
             
             // Swap the buffers to display the frame
             glfwSwapBuffers(window);
