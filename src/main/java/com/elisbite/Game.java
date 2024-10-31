@@ -70,6 +70,11 @@ public class Game {
         float aspect = 800f / 600f;
         glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0);
 
+        // Enable face culling
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        // Specify to cull back faces
+        GL11.glCullFace(GL11.GL_BACK);
+
         // Hide cursor and capture it
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetCursorPos(window, 400, 300); // Center the cursor
