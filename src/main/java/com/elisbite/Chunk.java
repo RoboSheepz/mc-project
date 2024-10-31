@@ -1,15 +1,31 @@
 package com.elisbite;
 
+import java.util.*;
+
 /*
  * A 3D array of ints representing block IDs in the world.
  */
 public class Chunk {
+
     private int[][][] data;
+    public int x; // the chunk coordinates of the chunk in the world
+    public int z;
 
     // Constructor to initialize the 3D array
     public Chunk() {
         // Initialize the array with the specified size
         data = new int[16][256][16];
+        fillWithZeros();
+    }
+
+    // Constructor to initialize the 3D array with coordinates
+    public Chunk( int x, int z) {
+        // Initialize the array with the specified size
+        data = new int[16][256][16];
+
+        this.x = x;
+        this.z = z;
+        
         fillWithZeros();
     }
 
@@ -27,10 +43,21 @@ public class Chunk {
     /* 
      * Get the ID of the block from the given chunk coordinates
      */
-    public int getBlock(int x, int y, int z) {
+    public int getBlockIDAt(int x, int y, int z) {
         // Check bounds to avoid ArrayIndexOutOfBoundsException
         if (x < 0 || x >= 16 || y < 0 || y >= 256 || z < 0 || z >= 16) {
             throw new IndexOutOfBoundsException("Invalid indices.");
+        }
+        return data[x][y][z];
+    }
+
+    /* 
+     * Get the ID of the block from the given chunk coordinates
+     */
+    public int getBlockIDAtBoundless(int x, int y, int z) {
+        // Check bounds to avoid ArrayIndexOutOfBoundsException
+        if (x < 0 || x >= 16 || y < 0 || y >= 256 || z < 0 || z >= 16) {
+            return 0;
         }
         return data[x][y][z];
     }
@@ -63,11 +90,47 @@ public class Chunk {
 
                     // render the block in its correct coordinates
                     Block block = new Block();
-                    block.renderBlock(offsetX, y, offsetZ, blockID);
+
+                    // True if the face needs to render, false if it does not
+                    List<String> facesToRender = new ArrayList<String>();
+
+                    facesToRender = testVisibleFaces( x, y, z );
+
+                    block.renderBlock(offsetX, y, offsetZ, blockID, facesToRender);
                     
                 }
             }
         }
+    }
+
+    // iterates thru each face of a block and adds that face to the list if there is air next to it
+    public List<String> testVisibleFaces( int x, int y, int z) {
+
+        List<String> faces = new ArrayList<String>();
+
+        if ( getBlockIDAtBoundless(x, y + 1, z) == 0) faces.add("Top");
+        if ( getBlockIDAtBoundless(x, y - 1, z) == 0) faces.add("Bottom");
+        if ( getBlockIDAtBoundless(x - 1, y, z) == 0) faces.add("Left");
+        if ( getBlockIDAtBoundless(x + 1, y, z) == 0) faces.add("Right");
+        if ( getBlockIDAtBoundless(x, y, z + 1) == 0) faces.add("Front");
+        if ( getBlockIDAtBoundless(x, y, z - 1) == 0) faces.add("Back");
+
+        return faces;
+    }
+
+    // iterates thru each face of a block and adds that face to the list if there is air next to it
+    public List<String> setVisibleFaces( int x, int y, int z) {
+
+        List<String> faces = new ArrayList<String>();
+
+        faces.add("Top");
+        faces.add("Bottom");
+        faces.add("Left");
+        faces.add("Right");
+        faces.add("Front");
+        faces.add("Back");
+
+        return faces;
     }
 
     // Method to iterate through every value in the data array and set all its blockIDs
