@@ -141,8 +141,8 @@ public class World {
     public void renderWorld(float x, float z, int seed) {
         
         // convert the camera coordinates to chunk coordinates
-        x = - x / 16;
-        z = - z / 16;
+        x = x / 16;
+        z = z / 16;
 
         // find bounds of chunk coordinates to be loaded (render distance)
         int renderDistance = 2;

@@ -14,6 +14,7 @@ public class Game {
     private World world = new World(); // The world contains all voxel information
     private Player player = new Player(); // The player
     private UI ui = new UI(); // The UI
+    private Debugger debugger = new Debugger(); // Contains all debug functionality
     private int seed = 100;
     private Vector2i windowSize = new Vector2i(800, 600);
 
@@ -80,8 +81,9 @@ public class Game {
         // Switch back to model view matrix
         glMatrixMode(GL_MODELVIEW);
 
-        player.init();
-        ui.init();
+        player.init(ui);
+        ui.init(debugger);
+        debugger.init(player);
     }
 
     /**
@@ -112,7 +114,7 @@ public class Game {
             glMatrixMode(GL_MODELVIEW);
 
             // Render UI
-            ui.renderUI(windowSize);
+            ui.tick(windowSize);
             
             // Swap the buffers to display the frame
             glfwSwapBuffers(window);

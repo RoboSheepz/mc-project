@@ -7,20 +7,28 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Player {
     private Vector3f playerPosition = new Vector3f(0, 2, 0);
+    private Vector3f playerForward = new Vector3f(0, 0, 0);
+    private Vector3f playerRight = new Vector3f(0, 0, 0);;
     private float cameraYaw = 0.0f;  // Rotation around Y-axis
     private float cameraPitch = 0.0f; // Rotation around X-axis
     private float cameraSpeed = 0.2f; // Movement speed multiplier
 
-    public void init() {
+    private UI uiRef;
+    Boolean keyToggleF3 = false;
+
+    public void init(UI ui) {
+        uiRef = ui;
         //playerPosition = findPlayerSpawnPos();
     }
 
     public void tick() {
+        calculateDirectionInputs();
+
         // Update camera from mouse position
         glRotatef(cameraPitch, 1.0f, 0.0f, 0.0f); // Pitch (X-axis)
         glRotatef(cameraYaw, 0.0f, 1.0f, 0.0f);   // Yaw (Y-axis)
 
-        glTranslatef(playerPosition.x, playerPosition.y, playerPosition.z);  // Move the world based on camera position
+        glTranslatef(-playerPosition.x, -playerPosition.y, -playerPosition.z);  // Move the world based on camera position
     }
 
     /**
@@ -35,31 +43,40 @@ public class Player {
 
         // Move left when the LEFT arrow is pressed
         if (glfwGetKey(playerWindow, GLFW_KEY_A) == GLFW_PRESS) {
-            playerPosition.x += rightX * cameraSpeed;
-            playerPosition.z += rightZ * cameraSpeed;
-        }
-        if (glfwGetKey(playerWindow, GLFW_KEY_D) == GLFW_PRESS) {
             playerPosition.x -= rightX * cameraSpeed;
             playerPosition.z -= rightZ * cameraSpeed;
+        }
+        if (glfwGetKey(playerWindow, GLFW_KEY_D) == GLFW_PRESS) {
+            playerPosition.x += rightX * cameraSpeed;
+            playerPosition.z += rightZ * cameraSpeed;
         }
 
         // Move forward and backward with W/S
         if (glfwGetKey(playerWindow, GLFW_KEY_S) == GLFW_PRESS) {
-            playerPosition.x += forwardX * cameraSpeed;
-            playerPosition.z += forwardZ * cameraSpeed;
-        }
-
-        if (glfwGetKey(playerWindow,  GLFW_KEY_W) == GLFW_PRESS) {
             playerPosition.x -= forwardX * cameraSpeed;
             playerPosition.z -= forwardZ * cameraSpeed;
         }
+
+        if (glfwGetKey(playerWindow,  GLFW_KEY_W) == GLFW_PRESS) {
+            playerPosition.x += forwardX * cameraSpeed;
+            playerPosition.z += forwardZ * cameraSpeed;
+        }
         // Move up when the SPACE key is pressed
         if (glfwGetKey(playerWindow, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            playerPosition.y -= cameraSpeed;
+            playerPosition.y += cameraSpeed;
         }
         // Move down when the SHIFT key is pressed
         if (glfwGetKey(playerWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            playerPosition.y += cameraSpeed;
+            playerPosition.y -= cameraSpeed;
+        }
+        
+        if (glfwGetKey(playerWindow, GLFW_KEY_F3) == GLFW_PRESS) {
+            if (!keyToggleF3) {
+                uiRef.toggleShowDebugScreen();
+                keyToggleF3 = true;
+            }
+        } else if (glfwGetKey(playerWindow, GLFW_KEY_F3) == GLFW_RELEASE) {
+            keyToggleF3 = false;
         }
     }
 
@@ -79,6 +96,13 @@ public class Player {
 
         // Update yaw and pitch based on mouse movement
         cameraYaw += deltaX * 0.1f;  // Sensitivity
+        // Make sure we always keep yaw between 0 and 360
+        if (cameraYaw > 360) {
+            cameraYaw -= 360;
+        } else if (cameraYaw < 0) {
+            cameraYaw += 360;
+        }
+
         cameraPitch += deltaY * 0.1f; // Sensitivity
 
         // Clamp the pitch to prevent gimbal lock
@@ -90,8 +114,33 @@ public class Player {
 
     } // end method handleMouse
 
+    private void calculateDirectionInputs(){
+        // Convert yaw angle from degrees to radians
+        float yawRadian = cameraYaw * ((float) Math.PI / 180.0f);
+
+        playerForward.x = (float) Math.cos(yawRadian);
+        playerForward.y = 0;
+        playerForward.z = (float) Math.sin(yawRadian);
+
+        playerRight.x = (float) Math.sin(yawRadian);
+        playerRight.y = 0;
+        playerRight.z = (float) -Math.cos(yawRadian);
+    }
+    
     public Vector3f getPlayerPos() {
         return playerPosition;
+    }
+
+    public float getPlayerYaw(Boolean negativeAngleDisplay) {
+        if (negativeAngleDisplay) { 
+            if (cameraYaw > 180) {
+                return cameraYaw - 360;
+            } else {
+                return cameraYaw;
+            }
+        } else {
+            return cameraYaw;
+        }
     }
 
     /* public Vector3f findPlayerSpawnPos() {

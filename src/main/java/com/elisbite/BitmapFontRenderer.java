@@ -73,9 +73,17 @@ public class BitmapFontRenderer {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
 
+        int currentLine = 0;
+        int currentHorizontalIndex = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            drawCharacter(c, x + i * CHAR_WIDTH * scale, y, scale);
+            if (c == '\n') {
+                currentLine++;
+                currentHorizontalIndex = 0;
+            } else {
+                currentHorizontalIndex++;
+                drawCharacter(c, x + currentHorizontalIndex * CHAR_WIDTH * scale, y + (currentLine * 20), scale);
+            }
         }
         
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);

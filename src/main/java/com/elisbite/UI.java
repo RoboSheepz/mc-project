@@ -4,15 +4,22 @@ import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 
 public class UI {
-    BitmapFontRenderer fontRenderer;
+    private BitmapFontRenderer fontRenderer;
+    private Debugger debuggerRef;
+    private Boolean showDebugScreen = true;
 
-    public void init() {
+    public void init(Debugger debugger) {
         fontRenderer = new BitmapFontRenderer();
+        debuggerRef = debugger;
     }
 
-    public void renderUI(Vector2i windowSize) {
+    public void tick(Vector2i windowSize) {
         setOrthographicProjection(windowSize.x, windowSize.y);
-        fontRenderer.renderText("MATTHEW IS CUTE", 10, 10, 3.0f); // Renders "Hello LWJGL" at (100,100) with scale 2.0
+        fontRenderer.renderText("MATTHEW IS CUTE", 10, 10, 2.0f);
+
+        if (showDebugScreen) {
+            fontRenderer.renderText(debuggerRef.getDebugScreenTextDisplay(), 10, 30, 2f);
+        }
     }
 
     private void setOrthographicProjection(int screenWidth, int screenHeight) {
@@ -23,5 +30,9 @@ public class UI {
         glOrtho(0, screenWidth, screenHeight, 0, -1, 1); // Left, Right, Bottom :3, Top, Near, Far
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+    }
+
+    public void toggleShowDebugScreen() {
+        showDebugScreen = !showDebugScreen;
     }
 }
