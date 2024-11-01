@@ -18,6 +18,15 @@ public class Game {
     private int seed = 100;
     private Vector2i windowSize = new Vector2i(800, 600);
 
+    private int currentFPS = 0;
+    private float deltaTime = 0;
+    private float lastFrameNanoTime = System.nanoTime();
+    private int frameCount = 0;
+
+    public float getCurrentFPS() {
+        return currentFPS;
+    }
+
     /**
      * Handles initialization, game loop, and closing game
      */
@@ -83,7 +92,7 @@ public class Game {
 
         player.init(ui);
         ui.init(debugger);
-        debugger.init(player);
+        debugger.init(player, this);
     }
 
     /**
@@ -119,6 +128,15 @@ public class Game {
             // Swap the buffers to display the frame
             glfwSwapBuffers(window);
             glfwPollEvents();
+
+            deltaTime += (System.nanoTime() - lastFrameNanoTime) / 1_000_000_000.0f;
+            lastFrameNanoTime = System.nanoTime();
+            frameCount++;
+            if (deltaTime >= 1) {
+                currentFPS = frameCount;
+                frameCount = 0;
+                deltaTime = 0;
+            }
         }
     }
 

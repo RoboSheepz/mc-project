@@ -2,13 +2,18 @@ package com.elisbite;
 
 public class Debugger {
     Player playerRef;
+    Game gameRef;
 
-    public void init(Player player) {
+    public void init(Player player, Game game) {
         playerRef = player;
+        gameRef = game;
     }
 
     public String getDebugScreenTextDisplay() {
         String textDisplay = "";
+
+        // FPS
+        textDisplay += gameRef.getCurrentFPS() + " FPS" + "\n";
 
         // Player XYZ Position
         textDisplay += "XYZ: " + (int)playerRef.getPlayerPos().x + "/" + (int)playerRef.getPlayerPos().y + "/" + (int)playerRef.getPlayerPos().z + "\n";
